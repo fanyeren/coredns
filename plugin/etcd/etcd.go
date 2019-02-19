@@ -117,6 +117,7 @@ func (e *Etcd) get(path string, recursive bool) (*etcdcv3.GetResponse, error) {
 
 func (e *Etcd) loopNodes(kv []*mvccpb.KeyValue, nameParts []string, star bool, qType uint16) (sx []msg.Service, err error) {
 	bx := make(map[msg.Service]struct{})
+	full_path := ""
 Nodes:
 	for _, n := range kv {
 		if star {
@@ -152,6 +153,11 @@ Nodes:
 
 		if shouldInclude(serv, qType) {
 			sx = append(sx, *serv)
+		}
+		
+		full_path = fmt.Sprintf("%s/", path)
+		if (s == full_path) {
+			return sx, nil
 		}
 	}
 	return sx, nil
