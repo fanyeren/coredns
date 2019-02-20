@@ -14,6 +14,7 @@ func TestSetupEtcd(t *testing.T) {
 		expectedPath       string
 		expectedEndpoint   []string
 		expectedErrContent string // substring from the expected error. Empty for positive cases.
+		expectedOurs       []string
 		username           string
 		password           string
 	}{
@@ -53,6 +54,22 @@ func TestSetupEtcd(t *testing.T) {
 	endpoints localhost:300
 }
 `, true, "", []string{""}, "unknown property 'endpoints'", "", "",
+		},
+		// with valid ours
+		{
+			`etcd {
+			endpoint http://localhost:2379
+			ours test.com
+		}
+			`, false, "skydns", []string{"http://localhost:2379"}, "", "", "",
+		},
+		// with ours, missing argument
+		{
+			`etcd {
+			endpoint http://localhost:2379
+			ours
+		}
+			`, true, "skydns", []string{"http://localhost:2379"}, "ours requires at least 1 argument", "", "",
 		},
 		// with valid credentials
 		{
@@ -103,6 +120,7 @@ func TestSetupEtcd(t *testing.T) {
 		if !test.shouldErr && etcd.PathPrefix != test.expectedPath {
 			t.Errorf("Etcd not correctly set for input %s. Expected: %s, actual: %s", test.input, test.expectedPath, etcd.PathPrefix)
 		}
+
 		if !test.shouldErr {
 			if len(etcd.endpoints) != len(test.expectedEndpoint) {
 				t.Errorf("Etcd not correctly set for input %s. Expected: '%+v', actual: '%+v'", test.input, test.expectedEndpoint, etcd.endpoints)
@@ -114,6 +132,16 @@ func TestSetupEtcd(t *testing.T) {
 			}
 		}
 
+		if !test.shouldErr {
+			if len(etcd.Ours) != len(test.expectedOurs) {
+				t.Errorf("Etcd not correctly set for input %s. Expected: '%+v', actual: '%+v'", test.input, test.expectedOurs, etcd.Ours)
+			}
+			for i, our := range etcd.Ours {
+				if our != test.expectedOurs[i] {
+					t.Errorf("Etcd not correctly set for input %s. Expected: '%+v', actual: '%+v'", test.input, test.expectedOurs, etcd.Ou
+				}
+			}
+		}
 		if !test.shouldErr {
 			if test.username != "" {
 				if etcd.Client.Username != test.username {
