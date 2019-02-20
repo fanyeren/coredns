@@ -37,6 +37,7 @@ type Etcd struct {
 	Upstream   *upstream.Upstream
 	Client     *etcdcv3.Client
 	Ctx        context.Context
+	Ours       []string
 
 	endpoints []string // Stored here as well, to aid in testing.
 }
