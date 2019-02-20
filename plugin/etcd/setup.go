@@ -48,6 +48,7 @@ func etcdParse(c *caddy.Controller) (*Etcd, error) {
 		tlsConfig *tls.Config
 		err       error
 		endpoints = []string{defaultEndpoint}
+		ours      []string
 		username  string
 		password  string
 	)
@@ -91,6 +92,15 @@ func etcdParse(c *caddy.Controller) (*Etcd, error) {
 					if err != nil {
 						return &Etcd{}, err
 					}
+				case "ours":
+					args := c.RemainingArgs()
+					if len(args) == 0 {
+						return &Etcd{}, c.ArgErr()
+					}
+					if len(args) <= 0 {
+						return &Etcd{}, c.Errf("ours requires at least 1 arguments")
+					}
+					ours = args
 				case "credentials":
 					args := c.RemainingArgs()
 					if len(args) == 0 {
@@ -118,6 +128,7 @@ func etcdParse(c *caddy.Controller) (*Etcd, error) {
 		}
 		etc.Client = client
 		etc.endpoints = endpoints
+		etc.Ours = ours
 
 		return &etc, nil
 	}
