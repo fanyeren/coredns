@@ -59,6 +59,7 @@ func (e *Etcd) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg) (
 		return plugin.BackendError(e, zone, dns.RcodeNameError, state, nil /* err */, opt)
 	}
 	if err != nil {
+		log.Errorf("error: %s in lookup %s\n", err.Error(), state.Name())
 		return plugin.BackendError(e, zone, dns.RcodeServerFailure, state, err, opt)
 	}
 
